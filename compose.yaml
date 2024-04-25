@@ -8,7 +8,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
+  homebackend:
+    build:
+      context: homebackend
+      target: builder
+    secrets:
+      - db-password
+    depends_on:
+      db:
+        condition: service_healthy      
   db:
     image: postgres
     restart: always
@@ -38,6 +46,10 @@ services:
       - 443:443
     depends_on: 
       - backend
+      - homebackend
+    links:
+      - backend
+      - homebackend  
 
 volumes:
   db-data:
