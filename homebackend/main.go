@@ -23,7 +23,7 @@ func connect() (*sql.DB, error) {
 	return sql.Open("postgres", fmt.Sprintf("postgres://postgres:%s@db:5432/example?sslmode=disable", string(bin)))
 }
 
-func blogHandler(w http.ResponseWriter, r *http.Request) {
+func adHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := connect()
 	if err != nil {
 		w.WriteHeader(500)
@@ -31,7 +31,7 @@ func blogHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT title FROM blog")
+	rows, err := db.Query("SELECT title FROM ad")
 	if err != nil {
 		w.WriteHeader(500)
 		return
@@ -53,7 +53,7 @@ func main() {
 
 	log.Print("Listening 8001")
 	r := mux.NewRouter()
-	r.HandleFunc("/", blogHandler)
+	r.HandleFunc("/", adHandler)
 	log.Fatal(http.ListenAndServe(":8001", handlers.LoggingHandler(os.Stdout, r)))
 }
 
@@ -71,16 +71,16 @@ func prepare() error {
 		time.Sleep(time.Second)
 	}
 
-	if _, err := db.Exec("DROP TABLE IF EXISTS blog"); err != nil {
+	if _, err := db.Exec("DROP TABLE IF EXISTS ad"); err != nil {
 		return err
 	}
 
-	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS blog (id SERIAL, title VARCHAR)"); err != nil {
+	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS ad (id SERIAL, title VARCHAR)"); err != nil {
 		return err
 	}
 
-	for i := 0; i < 7; i++ {
-		if _, err := db.Exec("INSERT INTO blog (title) VALUES ($1);", fmt.Sprintf("Blog post #%d", i)); err != nil {
+	for i := 0; i < 3; i++ {
+		if _, err := db.Exec("INSERT INTO ad (title) VALUES ($1);", fmt.Sprintf("ad post #%d", i)); err != nil {
 			return err
 		}
 	}
